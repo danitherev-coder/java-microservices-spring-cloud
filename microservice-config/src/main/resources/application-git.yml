@@ -1,0 +1,20 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: microservice-config
+  config:
+    activate:
+      on-profile: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/danitherev-coder/practicando-microservicios
+          default-label: main
+          search-paths: configurations
+          username: danitherev-coder
+          password: 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
+          clone-on-start: true
+          force-pull: true

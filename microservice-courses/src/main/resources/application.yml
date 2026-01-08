@@ -1,0 +1,18 @@
+server:
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types:
+      - text/html
+      - text/xml
+      - text/plain
+      - text/css
+      - text/javascript
+      - application/javascript
+      - application/json
+      - application/xml
+spring:
+  application:
+    name: microservice-courses
+  config:
+    import: optional:configserver:http://localhost:8888

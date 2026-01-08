@@ -1,0 +1,86 @@
+services:
+  # MySQL para microservice-student-db (puerto 3306)
+  mysql-student-db:
+    image: mysql:8.0
+    container_name: mysql-student-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-1234}
+      MYSQL_DATABASE: ${MYSQL_STUDENT_DATABASE:-microservice-student-db}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-student-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # MySQL para microservice-roles-db (puerto 3307)
+  mysql-roles-db:
+    image: mysql:8.0
+    container_name: mysql-roles-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-1234}
+      MYSQL_DATABASE: ${MYSQL_ROLES_DATABASE:-microservice-roles-db}
+    ports:
+      - "3307:3306"  # Mapeado a 3307 en el host
+    volumes:
+      - mysql-roles-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # PostgreSQL para microservice-auth-db (puerto 5432)
+  postgres-auth-db:
+    image: postgres:17-alpine
+    container_name: postgres-auth-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_AUTH_DATABASE:-microservice-auth-db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-1234}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # PostgreSQL para microservice-courses-db (puerto 5433)
+  postgres-courses-db:
+    image: postgres:17-alpine
+    container_name: postgres-courses-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_COURSES_DATABASE:-microservice-courses-db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-1234}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-courses-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql-student-data:
+  mysql-roles-data:
+  postgres-auth-data:
+  postgres-courses-data:
+
+networks:
+  default:
+    driver: bridge

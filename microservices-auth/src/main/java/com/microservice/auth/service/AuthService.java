@@ -1,10 +1,17 @@
 package com.microservice.auth.service;
 
-import com.microservice.auth.entity.UserCredentials;
+import com.microservice.auth.dto.AuthRequest;
+import com.microservice.auth.dto.AuthResponse;
+
+import java.util.Set;
 
 public interface AuthService {
 
-    String saveUser(UserCredentials credentials);
+    AuthResponse saveUser(AuthRequest authRequest);
+    
     String generateToken(String username);
+    
+    void addRolesToUser(String username, Set<String> roles);
+    
     void validateToken(String token);
 }

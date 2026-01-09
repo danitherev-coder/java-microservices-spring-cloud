@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class JwtServiceImpl implements JwtService {
@@ -36,8 +38,9 @@ public class JwtServiceImpl implements JwtService {
 
 
     @Override
-    public String generateToken(String username) {
+    public String generateToken(String username, Set<String> roles) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", List.copyOf(roles));
         return createToken(claims, username);
     }
 

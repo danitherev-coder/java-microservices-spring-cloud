@@ -328,7 +328,7 @@ spring.cloud.gateway.routes:
 **Ejemplos de requests:**
 ```bash
 # Request externo (a través del Gateway)
-GET http://localhost:8090/api/v1/students/all
+GET http://localhost:8080/api/v1/students/all
 
 # Se traduce internamente a:
 GET http://microservice-students:8081/api/v1/students/all

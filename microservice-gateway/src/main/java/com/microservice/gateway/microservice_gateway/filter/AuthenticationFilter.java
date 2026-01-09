@@ -5,8 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.gateway.microservice_gateway.exception.GatewayExceptionResponse;
 import com.microservice.gateway.microservice_gateway.util.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import java.security.Key;
+import java.util.List;
+import java.util.Objects;
+import com.microservice.gateway.microservice_gateway.util.JwtServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -21,7 +28,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -66,6 +72,16 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 try {
                     // Validar el token
                     jwtService.validateToken(token);
+                    // Extraer roles y adjuntarlos como header para downstream services
+                    byte[] keyBytes = Decoders.BASE64.decode(JwtServiceImpl.SECRET);
+                    Key signingKey = Keys.hmacShaKeyFor(keyBytes);
+                    var claims = Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token).getBody();
+                    List<String> roles = claims.get("roles", List.class);
+                    if (roles != null && !roles.isEmpty()) {
+                        String csv = String.join(",", roles);
+                        ServerHttpRequest newReq = request.mutate().header("X-User-Roles", csv).build();
+                        return chain.filter(exchange.mutate().request(newReq).build());
+                    }
                 } catch (ExpiredJwtException e) {
                     log.error("Token expirado: {}", e.getMessage());
                     return handleError(exchange.getResponse(), 
